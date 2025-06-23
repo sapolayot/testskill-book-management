@@ -57,7 +57,7 @@ const tokenCookie = useCookie("access_token");
 const handleLogin = async () => {
     error.value = "";
     const { data, error: err } = await login(form);
-    if (err && err.error) {
+    if (err && err.statusCode != 200) {
         error.value = err.message || "Login failed";
     } else {
         tokenCookie.value = data.access_token;
