@@ -2,6 +2,7 @@
     <div class="p-4">
         <Breadcrumb :crumbs="breadcrumbs" />
         <button @click="logout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">🚪 ออกจากระบบ</button>
+
         <h1 class="text-xl font-bold mb-4">📚 รายการหนังสือ</h1>
         <NuxtLink to="/book-management/create" class="bg-blue-500 text-white px-4 py-2 rounded mb-4 inline-block">
             ➕ เพิ่มหนังสือ
@@ -15,6 +16,12 @@
             <NuxtLink :to="`/book-management/${book.id}`" class="text-blue-600 mr-2">✏️ แก้ไข</NuxtLink>
             <button @click="confirmDelete(book.id)" class="text-red-600">🗑️ ลบ</button>
         </div>
+
+        <!-- จุดสังเกตว่าถึงท้ายรายการแล้ว -->
+        <div ref="loadMoreTrigger" class="h-10"></div>
+
+        <div v-if="isLoading" class="text-center my-4">กำลังโหลด...</div>
+        <div v-if="!hasMore && !isLoading" class="text-center my-4 text-gray-500">ไม่มีข้อมูลเพิ่มแล้ว</div>
 
         <!-- Popup ยืนยัน -->
         <div v-if="showConfirm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -34,19 +41,62 @@
 </template>
 
 <script setup>
+import { ref, onMounted, watch } from "vue";
+
 const breadcrumbs = [{ label: "หน้าแรก", to: "/" }, { label: "หนังสือ" }];
 const { getBooks, deleteBook } = useBookApi();
-const books = ref([]);
 const router = useRouter();
 const token = useCookie("access_token");
 
+const books = ref([]);
+const page = ref(1);
+const hasMore = ref(true);
+const isLoading = ref(false);
+
 const fetchBooks = async () => {
-    books.value = await getBooks();
+    if (isLoading.value || !hasMore.value) return;
+    isLoading.value = true;
+
+    try {
+        const result = await getBooks(page.value); // getBooks(page) ควรรองรับ pagination
+        const { items } = result;
+        if (items.length === 0) {
+            hasMore.value = false;
+        } else {
+            books.value.push(...items);
+            page.value++;
+        }
+    } catch (error) {
+        console.error("Error loading books:", error);
+    } finally {
+        isLoading.value = false;
+    }
 };
 
-onMounted(fetchBooks);
+// เรียกโหลดข้อมูลหน้าแรกตอน mount
+onMounted(() => {
+    fetchBooks();
+    observeScroll();
+});
 
-// ยืนยันการลบ
+// สำหรับ IntersectionObserver สังเกต element ตัวโหลดข้อมูลเพิ่มเติม
+const loadMoreTrigger = ref(null);
+
+const observeScroll = () => {
+    const observer = new IntersectionObserver(
+        (entries) => {
+            if (entries[0].isIntersecting) {
+                fetchBooks();
+            }
+        },
+        { threshold: 1 }
+    );
+    if (loadMoreTrigger.value) {
+        observer.observe(loadMoreTrigger.value);
+    }
+};
+
+// ลบหนังสือ
 const showConfirm = ref(false);
 const bookToDelete = ref(null);
 
@@ -56,11 +106,19 @@ const confirmDelete = (id) => {
 };
 
 const handleDelete = async () => {
+    if (!bookToDelete.value) return;
     await deleteBook(bookToDelete.value);
     showConfirm.value = false;
     bookToDelete.value = null;
+
+    // รีเฟรชข้อมูลใหม่ (reset pagination)
+    books.value = [];
+    page.value = 1;
+    hasMore.value = true;
     await fetchBooks();
 };
+
+// ออกจากระบบ
 const logout = () => {
     token.value = null; // ลบ cookie
     router.push("/login"); // ไปหน้า login
