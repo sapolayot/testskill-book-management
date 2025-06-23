@@ -33,6 +33,6 @@ const submit = async () => {
         published_year: parseInt(published_year.value),
         genre: genre.value,
     });
-    router.push("/books");
+    router.push("/book-management");
 };
 </script>
