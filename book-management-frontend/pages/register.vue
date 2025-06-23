@@ -85,8 +85,8 @@ const router = useRouter();
 const handleRegister = async () => {
     error.value = "";
     const { data, error: err } = await register(form);
-    if (err && err.value) {
-        error.value = err.value.message || "Register failed";
+    if (err && err.error) {
+        error.value = err.message || "Register failed";
     } else {
         showToast.value = true;
         setTimeout(() => {
