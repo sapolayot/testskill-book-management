@@ -35,8 +35,6 @@ COPY --from=builder /app/prisma ./prisma
 COPY docker-entrypoint.sh .
 RUN chmod +x docker-entrypoint.sh
 
-USER node
-
 EXPOSE 8000
 
 CMD ["./docker-entrypoint.sh"]
