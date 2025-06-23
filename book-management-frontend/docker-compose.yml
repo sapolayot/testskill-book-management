@@ -1,0 +1,18 @@
+version: '3.2'
+services:
+  app-frontend:
+    container_name: app-frontend
+    restart: always
+    build: 
+      context: ./testskill-web
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    ports:
+      - 80:80
