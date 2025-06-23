@@ -1,6 +1,7 @@
 <template>
     <div class="p-4">
         <Breadcrumb :crumbs="breadcrumbs" />
+        <button @click="logout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">🚪 ออกจากระบบ</button>
         <h1 class="text-xl font-bold mb-4">📚 รายการหนังสือ</h1>
         <NuxtLink to="/book-management/create" class="bg-blue-500 text-white px-4 py-2 rounded mb-4 inline-block">
             ➕ เพิ่มหนังสือ
@@ -36,6 +37,8 @@
 const breadcrumbs = [{ label: "หน้าแรก", to: "/" }, { label: "หนังสือ" }];
 const { getBooks, deleteBook } = useBookApi();
 const books = ref([]);
+const router = useRouter();
+const token = useCookie("access_token");
 
 const fetchBooks = async () => {
     books.value = await getBooks();
@@ -57,5 +60,9 @@ const handleDelete = async () => {
     showConfirm.value = false;
     bookToDelete.value = null;
     await fetchBooks();
+};
+const logout = () => {
+    token.value = null; // ลบ cookie
+    router.push("/login"); // ไปหน้า login
 };
 </script>
