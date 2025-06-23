@@ -1,0 +1,62 @@
+version: "3.2"
+services:
+    db:
+        container_name: db
+        image: mysql
+        command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --init-connect='SET NAMES UTF8;' --innodb-flush-log-at-trx-commit=0
+        environment:
+            MYSQL_DATABASE: bookdb
+            MYSQL_ROOT_PASSWORD: testskill
+            MYSQL_ROOT_HOST: "%"
+            TZ: Asia/Bangkok
+        restart: always
+        volumes:
+            - bookdb:/var/lib/mysql
+    adminer:
+        container_name: adminer
+        image: adminer
+        restart: always
+        ports:
+            - 1000:8080
+    app-backend:
+        container_name: app-backend
+        restart: always
+        build:
+            context: ./book-management-backend
+            dockerfile: Dockerfile
+        environment:
+            PORT: 8000
+            DATABASE_URL: mysql://root:testskill@db:3306/bookdb
+            JWT_SECRET: "KCkMR0yyOX8SS3MQr+XIwp8z525Ku3yB1dgP0MdvCrDlx2Nfqcoa6JbCk/b1J3Nj28wwd4Bh+RFP8DCnzSKFUQ=="
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.50"
+                    memory: 512M
+                reservations:
+                    cpus: "0.25"
+                    memory: 128M
+        ports:
+            - 8000:8000
+        depends_on:
+            - db
+        links:
+            - db
+    app-frontend:
+        container_name: app-frontend
+        restart: always
+        build:
+            context: ./book-management-frontend
+            dockerfile: Dockerfile
+        deploy:
+            resources:
+                limits:
+                    cpus: "0.50"
+                    memory: 512M
+                reservations:
+                    cpus: "0.25"
+                    memory: 128M
+        ports:
+            - 80:80
+volumes:
+    bookdb:

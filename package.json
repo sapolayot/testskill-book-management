@@ -1,0 +1,9 @@
+{
+    "name": "book-management",
+    "scripts": {
+        "dev": "concurrently \"npm run dev --prefix book-management-frontend\" \"npm run start:dev --prefix book-management-backend\""
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.0"
+    }
+}
