@@ -1,5 +1,5 @@
 # Stage 1 - build
-FROM node:22.0.0-alpine as builder
+FROM node:22.12.0-alpine as builder
 WORKDIR /app
 COPY package.json ./
 RUN yarn install
