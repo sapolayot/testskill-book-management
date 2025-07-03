@@ -14,7 +14,11 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost',
+      'https://testskill-book-management-production.up.railway.app',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
