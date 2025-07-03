@@ -2,7 +2,7 @@
 FROM node:22.0.0-alpine as builder
 WORKDIR /app
 COPY package.json ./
-RUN yarn install
+RUN yarn install --ignore-engines
 COPY . .
 RUN yarn build
 
