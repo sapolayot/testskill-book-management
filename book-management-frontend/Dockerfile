@@ -1,15 +1,15 @@
-# Stage 1 - build
-FROM node:stable-alpine as builder
+# Stage 1 - Build
+FROM node:22.0.0-alpine as builder
 WORKDIR /app
-COPY package.json yarn.lock ./
+COPY package.json ./
 RUN yarn install
 COPY . .
 RUN yarn build
 
-# Stage 2 - production
-FROM node:stable-alpine as final
+# Stage 2 - Production
+FROM node:20.17.0-alpine as final
 WORKDIR /app
 COPY --from=builder /app ./
-ENV HOST=0.0.0.0
+ENV PORT=80
 EXPOSE 80
 CMD ["node", ".output/server/index.mjs"]
