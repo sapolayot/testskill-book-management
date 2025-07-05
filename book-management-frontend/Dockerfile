@@ -7,7 +7,7 @@ COPY . .
 RUN yarn build
 
 # Stage 2 - Production
-FROM node:20.17.0-alpine as final
+FROM node:stable-alpine as final
 WORKDIR /app
 COPY --from=builder /app ./
 ENV PORT=80
