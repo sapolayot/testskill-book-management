@@ -1,5 +1,5 @@
 # Stage 1 - Build
-FROM node:22.12.0-alpine as builder
+FROM node:22.17.0-alpine as builder
 WORKDIR /app
 COPY package.json ./
 RUN yarn install
@@ -7,7 +7,7 @@ COPY . .
 RUN yarn build
 
 # Stage 2 - Production
-FROM node:22.12.0-alpine as final
+FROM node:22.17.0-alpine as final
 WORKDIR /app
 COPY --from=builder /app ./
 ENV PORT=80
